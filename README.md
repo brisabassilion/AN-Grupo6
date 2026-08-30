@@ -3,7 +3,7 @@
 - **Bassilion, Brisa**
 - **Cáceres**
 - **Huari**
-- **Mazzei**
+- **Mazzei, Martina**
 
 **Cátedra:** Análisis Numérico  
 **Institución:** Universidad Tecnológica Nacional — Facultad Regional La Plata (UTN FRLP)
