@@ -1,858 +1,214 @@
-<title>Método de la Potencia</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-<style>
-  /* ============ TOKENS ============ */
-  :root{
-    --paper:#EEF0F1;
-    --surface:#FFFFFF;
-    --surface-2:#E4E7EA;
-    --ink:#161A23;
-    --ink-soft:#4C5567;
-    --ink-faint:#7B8496;
-    --line:#D6DADF;
-    --accent:#2648C7;
-    --accent-ink:#FFFFFF;
-    --accent-soft:#E3E8FB;
-    --converge:#157A6E;
-    --converge-soft:#DEF0EC;
-    --diverge:#B5481B;
-    --diverge-soft:#FBE7DD;
-    --complex:#6E3B9E;
-    --complex-soft:#EEE3F7;
-    --shadow: 0 1px 2px rgba(22,26,35,.04), 0 8px 24px -12px rgba(22,26,35,.14);
-
-    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
-    --font-body:'Work Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --font-mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-
-    --sidebar-w: 280px;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#10141C;
-      --surface:#161B26;
-      --surface-2:#1D2330;
-      --ink:#E8EAF0;
-      --ink-soft:#AAB2C2;
-      --ink-faint:#727B8E;
-      --line:#2A3140;
-      --accent:#8199FF;
-      --accent-ink:#0E1526;
-      --accent-soft:#212B49;
-      --converge:#49C4B2;
-      --converge-soft:#173330;
-      --diverge:#E58A57;
-      --diverge-soft:#3A2418;
-      --complex:#BB98E8;
-      --complex-soft:#2B2140;
-      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px -14px rgba(0,0,0,.6);
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Repositorio web del Grupo 6 para los trabajos de Análisis Numérico de la UTN FRLP.">
+  <title>Grupo 6 · Análisis Numérico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f1f2f4;
+      --surface: #ffffff;
+      --ink: #171b24;
+      --soft: #596173;
+      --line: #d9dde4;
+      --blue: #2648c7;
+      --blue-soft: #e3e8fb;
+      --green: #157a6e;
+      --shadow: 0 18px 50px -34px rgba(22, 29, 48, .42);
+      --display: "Fraunces", Georgia, serif;
+      --body: "Work Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", monospace;
     }
-  }
-  :root[data-theme="dark"]{
-    --paper:#10141C;
-    --surface:#161B26;
-    --surface-2:#1D2330;
-    --ink:#E8EAF0;
-    --ink-soft:#AAB2C2;
-    --ink-faint:#727B8E;
-    --line:#2A3140;
-    --accent:#8199FF;
-    --accent-ink:#0E1526;
-    --accent-soft:#212B49;
-    --converge:#49C4B2;
-    --converge-soft:#173330;
-    --diverge:#E58A57;
-    --diverge-soft:#3A2418;
-    --complex:#BB98E8;
-    --complex-soft:#2B2140;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px -14px rgba(0,0,0,.6);
-  }
 
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{animation:none !important; transition:none !important;} }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 86% 4%, rgba(38,72,199,.10), transparent 25rem),
+        var(--paper);
+      font-family: var(--body);
+      line-height: 1.6;
+    }
 
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:var(--font-body);
-    font-size:16px;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
+    a { color: inherit; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
 
-  h1,h2,h3,h4{
-    font-family:var(--font-display);
-    color:var(--ink);
-    text-wrap:balance;
-    margin:0 0 .5em;
-    font-weight:600;
-  }
-  p{margin:0 0 1em; color:var(--ink-soft); max-width:64ch;}
-  strong{color:var(--ink); font-weight:600;}
-  a{color:var(--accent);}
-  code, .mono{font-family:var(--font-mono);}
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 82px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-family: var(--mono); font-size: .82rem; font-weight: 600; letter-spacing: .04em; }
+    .brand span { color: var(--blue); }
+    .topbar a { text-decoration: none; font-size: .9rem; font-weight: 600; }
+    .topbar a:hover { color: var(--blue); }
 
-  ::selection{ background:var(--accent-soft); color:var(--ink); }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.45fr .75fr;
+      gap: 70px;
+      align-items: end;
+      padding: 96px 0 100px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: var(--blue);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 32px; height: 2px; background: currentColor; }
+    h1 { margin: 0; max-width: 760px; font: 600 clamp(3.1rem, 7vw, 6.4rem)/.94 var(--display); letter-spacing: -.045em; }
+    .hero-copy { margin: 30px 0 0; max-width: 670px; color: var(--soft); font-size: clamp(1.08rem, 2vw, 1.3rem); }
+    .hero-copy strong { color: var(--ink); }
 
-  /* ============ LAYOUT SHELL ============ */
-  .shell{ display:flex; min-height:100vh; }
+    .group-card {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      background: rgba(255,255,255,.72);
+      box-shadow: var(--shadow);
+    }
+    .group-card small { color: var(--soft); font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .group-card h2 { margin: 8px 0 14px; font: 600 2rem/1.1 var(--display); }
+    .members { margin: 0; padding: 0; list-style: none; color: var(--soft); }
+    .members li { padding: 7px 0; border-top: 1px solid var(--line); }
 
-  .sidebar{
-    position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w);
-    background:var(--surface); border-right:1px solid var(--line);
-    display:flex; flex-direction:column; z-index:40;
-    transition:transform .25s ease;
-  }
-  .sidebar-head{ padding:1.6rem 1.4rem 1.1rem; border-bottom:1px solid var(--line); }
-  .sidebar-kicker{
-    font-family:var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
-    color:var(--accent); font-weight:600; margin-bottom:.5rem; display:block;
-  }
-  .sidebar-title{ font-family:var(--font-display); font-size:1.25rem; line-height:1.25; margin:0 0 .3rem; }
-  .sidebar-sub{ font-size:.8rem; color:var(--ink-faint); margin:0; }
+    .works { padding: 90px 0 110px; border-top: 1px solid var(--line); }
+    .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 38px; }
+    .section-head h2 { margin: 0; font: 600 clamp(2.2rem, 5vw, 4rem)/1 var(--display); letter-spacing: -.03em; }
+    .section-head p { max-width: 430px; margin: 0; color: var(--soft); }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 
-  .nav{ flex:1; overflow-y:auto; padding:.9rem .8rem; }
-  .nav-item{
-    display:flex; align-items:baseline; gap:.65rem;
-    width:100%; text-align:left; background:none; border:none; cursor:pointer;
-    padding:.55rem .7rem; border-radius:8px; color:var(--ink-soft);
-    font-family:var(--font-body); font-size:.9rem; text-decoration:none;
-    transition:background .15s ease, color .15s ease;
-  }
-  .nav-item:hover{ background:var(--surface-2); color:var(--ink); }
-  .nav-item.active{ background:var(--accent-soft); color:var(--accent); font-weight:600; }
-  .nav-num{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); min-width:1.4em; }
-  .nav-item.active .nav-num{ color:var(--accent); }
+    .work-card {
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    a.work-card { text-decoration: none; }
+    a.work-card:hover { transform: translateY(-5px); border-color: var(--blue); box-shadow: 0 24px 54px -32px rgba(38,72,199,.44); }
+    a.work-card:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .number { font: 600 .78rem var(--mono); color: var(--blue); letter-spacing: .08em; }
+    .status { padding: 6px 10px; border-radius: 99px; font: 600 .7rem var(--mono); text-transform: uppercase; letter-spacing: .06em; background: #def0ec; color: var(--green); }
+    .work-card h3 { margin: auto 0 12px; max-width: 510px; font: 600 clamp(1.65rem, 3vw, 2.35rem)/1.08 var(--display); }
+    .work-card p { margin: 0; color: var(--soft); }
+    .open { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--blue); font-weight: 600; }
+    .arrow { font-size: 1.35rem; transition: transform .2s ease; }
+    a.work-card:hover .arrow { transform: translateX(5px); }
 
-  .sidebar-foot{ padding:1rem 1.4rem 1.3rem; border-top:1px solid var(--line); }
-  .theme-row{ display:flex; gap:.4rem; }
-  .theme-btn{
-    flex:1; padding:.4rem .3rem; border-radius:7px; border:1px solid var(--line);
-    background:var(--surface); color:var(--ink-soft); font-family:var(--font-mono);
-    font-size:.68rem; cursor:pointer; letter-spacing:.03em;
-  }
-  .theme-btn.active{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+    .work-card.pending { background: transparent; border-style: dashed; box-shadow: none; }
+    .pending .status { background: var(--blue-soft); color: var(--blue); }
+    .pending h3 { color: #747c8d; }
 
-  .menu-toggle{
-    display:none; position:fixed; top:1rem; right:1rem; z-index:50;
-    width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
-    background:var(--surface); color:var(--ink); box-shadow:var(--shadow);
-    font-size:1.1rem; cursor:pointer; align-items:center; justify-content:center;
-  }
+    footer { border-top: 1px solid var(--line); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; padding: 30px 0 42px; color: var(--soft); font-size: .88rem; }
 
-  .main{ margin-left:var(--sidebar-w); flex:1; min-width:0; }
-  section.block{ padding:5.5rem 4vw 2rem; max-width:920px; scroll-margin-top:1.5rem; }
-  section.block:first-of-type{ padding-top:4.5rem; }
+    @media (max-width: 800px) {
+      .hero { grid-template-columns: 1fr; gap: 46px; padding: 70px 0 74px; }
+      .grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 16px; }
+      .work-card { min-height: 270px; }
+    }
+    @media (max-width: 520px) {
+      .wrap { width: min(100% - 28px, 1120px); }
+      .topbar { min-height: 68px; }
+      .topbar a { display: none; }
+      h1 { font-size: 3.25rem; }
+      .hero { padding-top: 55px; }
+      .works { padding: 70px 0 80px; }
+      .work-card { padding: 24px; }
+      .footer-inner { display: block; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="wrap topbar">
+    <div class="brand"><span>AN</span> / GRUPO 6</div>
+    <a href="#trabajos">Explorar trabajos ↓</a>
+  </header>
 
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:.5rem;
-    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
-    color:var(--accent); font-weight:600; margin-bottom:1rem;
-  }
-  .eyebrow::before{ content:""; width:1.6em; height:1.5px; background:var(--accent); display:inline-block; }
-
-  /* ============ HERO ============ */
-  .hero{ padding-top:6rem; }
-  .hero h1{ font-size:clamp(2rem, 4vw, 2.9rem); max-width:16ch; }
-  .hero-lede{ font-size:1.08rem; max-width:60ch; }
-  .hero-key{
-    margin-top:2rem; padding:1.3rem 1.5rem; border-radius:14px;
-    background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow);
-    display:flex; gap:1rem; align-items:flex-start;
-  }
-  .hero-key .glyph{ font-family:var(--font-display); font-size:2rem; color:var(--accent); line-height:1; }
-  .hero-key p{ margin:0; color:var(--ink); }
-
-  .roadmap{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
-    border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-top:2.4rem; }
-  .roadmap-item{ background:var(--surface); padding:1.1rem 1.1rem; }
-  .roadmap-num{ font-family:var(--font-mono); color:var(--accent); font-size:.78rem; display:block; margin-bottom:.4rem; }
-  .roadmap-item h4{ font-size:.95rem; margin-bottom:.25rem; }
-  .roadmap-item p{ font-size:.82rem; margin:0; }
-  @media (max-width:820px){ .roadmap{ grid-template-columns:1fr 1fr; } }
-  @media (max-width:560px){ .roadmap{ grid-template-columns:1fr; } }
-
-  /* ============ GENERIC BLOCKS ============ */
-  .card-grid{ display:grid; gap:1rem; margin-top:1.4rem; }
-  .cols-2{ grid-template-columns:1fr 1fr; }
-  .cols-3{ grid-template-columns:repeat(3,1fr); }
-  @media (max-width:760px){ .cols-2,.cols-3{ grid-template-columns:1fr; } }
-
-  .card{
-    background:var(--surface); border:1px solid var(--line); border-radius:14px;
-    padding:1.3rem 1.4rem; box-shadow:var(--shadow);
-  }
-  .card h3{ font-size:1.05rem; margin-bottom:.5rem; }
-  .card p:last-child{ margin-bottom:0; }
-
-  .def-card{ border-left:3px solid var(--accent); }
-  .def-label{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:600; }
-
-  .formula{
-    font-family:var(--font-mono); background:var(--surface-2); border:1px solid var(--line);
-    border-left:3px solid var(--accent); border-radius:8px; padding:.9rem 1.1rem;
-    margin:.8rem 0; overflow-x:auto; font-size:.95rem; color:var(--ink); white-space:pre;
-  }
-  .formula.tight{ display:inline-block; margin:0 .2rem; padding:.35rem .6rem; white-space:nowrap; font-size:.88rem; }
-
-  .lambda-row{ display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
-  .lambda-pill{
-    font-family:var(--font-mono); font-size:.85rem; padding:.35rem .75rem; border-radius:999px;
-    background:var(--surface-2); border:1px solid var(--line);
-  }
-  .lambda-pill.real{ background:var(--accent-soft); color:var(--accent); border-color:transparent; }
-  .lambda-pill.cplx{ background:var(--complex-soft); color:var(--complex); border-color:transparent; }
-
-  .note{ display:flex; gap:.8rem; padding:.9rem 1.1rem; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); margin:.9rem 0; }
-  .note .tag{ font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); min-width:5.5em; }
-
-  /* ============ MATRIX ============ */
-  .matrix-wrap{ display:inline-flex; align-items:center; gap:.5rem; margin:.3rem .4rem .3rem 0; vertical-align:middle; }
-  .matrix{
-    display:inline-grid; gap:.3rem 1rem; padding:.5rem .9rem;
-    font-family:var(--font-mono); font-size:.92rem; position:relative;
-  }
-  .matrix::before, .matrix::after{ content:""; position:absolute; top:.15rem; bottom:.15rem; width:.45rem; border:1.6px solid var(--ink-soft); }
-  .matrix::before{ left:-.1rem; border-right:none; }
-  .matrix::after{ right:-.1rem; border-left:none; }
-  .matrix span{ text-align:center; min-width:1.6em; }
-
-  /* ============ STEPPER ============ */
-  .stepper{ margin-top:1.6rem; position:relative; padding-left:2.6rem; }
-  .stepper::before{ content:""; position:absolute; left:.95rem; top:.4rem; bottom:.4rem; width:2px; background:var(--line); }
-  .step{ position:relative; padding-bottom:1.8rem; }
-  .step:last-child{ padding-bottom:0; }
-  .step::before{
-    content:attr(data-n); position:absolute; left:-2.6rem; top:0; width:1.9rem; height:1.9rem;
-    border-radius:50%; background:var(--surface); border:2px solid var(--accent); color:var(--accent);
-    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:.8rem; font-weight:600;
-  }
-  .step h4{ font-size:1rem; margin-bottom:.3rem; }
-  .step p{ margin-bottom:0; font-size:.92rem; }
-
-  /* ============ TABLE ============ */
-  .table-wrap{ overflow-x:auto; margin:1rem 0; border:1px solid var(--line); border-radius:10px; }
-  table{ border-collapse:collapse; width:100%; font-size:.88rem; }
-  th,td{ padding:.55rem .8rem; text-align:left; border-bottom:1px solid var(--line); font-family:var(--font-mono); white-space:nowrap; }
-  th{ background:var(--surface-2); color:var(--ink-soft); font-family:var(--font-body); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
-  tr:last-child td{ border-bottom:none; }
-
-  .badge{ display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-size:.78rem; padding:.3rem .7rem; border-radius:999px; font-weight:600; }
-  .badge.converge{ background:var(--converge-soft); color:var(--converge); }
-  .badge.diverge{ background:var(--diverge-soft); color:var(--diverge); }
-  .badge::before{ content:"●"; font-size:.6rem; }
-
-  /* ============ EXERCISE ============ */
-  .exercise{ border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow); margin-top:1.8rem; overflow:hidden; }
-  .exercise-head{ padding:1.1rem 1.4rem; background:var(--surface-2); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
-  .exercise-head h3{ margin:0; font-size:1.08rem; }
-  .exercise-body{ padding:1.3rem 1.4rem 1.5rem; }
-  .exercise-step{ margin-bottom:1.3rem; }
-  .exercise-step:last-child{ margin-bottom:0; }
-  .exercise-step .step-label{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); font-weight:600; display:block; margin-bottom:.4rem; }
-  .result-box{ background:var(--accent-soft); border-radius:10px; padding:.9rem 1.1rem; margin-top:.6rem; }
-  .result-box p{ color:var(--ink); margin:0; }
-
-  /* ============ SIMULATOR ============ */
-  .sim{ border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow); padding:1.4rem 1.5rem; margin-top:1.5rem; }
-  .sim-top{ display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
-  .sim-controls{ display:flex; gap:.6rem; flex-wrap:wrap; }
-  .btn{
-    font-family:var(--font-body); font-weight:600; font-size:.85rem; border-radius:8px; border:1px solid var(--line);
-    background:var(--surface); color:var(--ink); padding:.55rem 1rem; cursor:pointer; transition:transform .1s ease, background .15s ease;
-  }
-  .btn:hover{ background:var(--surface-2); }
-  .btn:active{ transform:scale(.97); }
-  .btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
-  .btn.primary:hover{ filter:brightness(1.06); }
-  .sim-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:1.4rem; align-items:start; }
-  @media (max-width:760px){ .sim-grid{ grid-template-columns:1fr; } }
-  .sim-readout{ display:flex; gap:1.2rem; flex-wrap:wrap; margin-bottom:1rem; }
-  .readout{ background:var(--surface-2); border-radius:10px; padding:.7rem 1rem; min-width:9rem; }
-  .readout .k{ display:block; font-family:var(--font-mono); font-size:.7rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; }
-  .readout .v{ font-family:var(--font-mono); font-size:1.15rem; color:var(--ink); }
-  canvas{ width:100%; height:220px; display:block; }
-
-  /* ============ QUIZ ============ */
-  .quiz-item{ border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:.9rem; overflow:hidden; }
-  .quiz-q{ padding:1rem 1.2rem; font-weight:600; }
-  .quiz-opts{ display:flex; flex-direction:column; gap:.5rem; padding:0 1.2rem 1.2rem; }
-  .opt{
-    text-align:left; border:1px solid var(--line); background:var(--surface-2); border-radius:8px;
-    padding:.6rem .9rem; cursor:pointer; font-family:var(--font-body); font-size:.9rem; color:var(--ink);
-  }
-  .opt.correct{ background:var(--converge-soft); border-color:var(--converge); color:var(--converge); font-weight:600; }
-  .opt.wrong{ background:var(--diverge-soft); border-color:var(--diverge); color:var(--diverge); }
-  .quiz-explain{ display:none; padding:0 1.2rem 1.1rem; font-size:.85rem; color:var(--ink-soft); }
-  .quiz-explain.show{ display:block; }
-
-  /* ============ REFERENCES ============ */
-  .ref-list{ list-style:none; padding:0; margin:1.2rem 0 0; display:flex; flex-direction:column; gap:.9rem; }
-  .ref-item{ display:flex; gap:1rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
-  .ref-item .ref-icon{ font-family:var(--font-mono); font-size:.75rem; color:var(--ink-faint); padding-top:.15rem; }
-  .ref-item strong{ display:block; margin-bottom:.15rem; }
-  .ref-item span{ font-size:.85rem; color:var(--ink-soft); }
-
-  footer.page-foot{ padding:2.5rem 4vw 4rem; color:var(--ink-faint); font-size:.82rem; }
-
-  .fade-in{ opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease; }
-  .fade-in.in{ opacity:1; transform:none; }
-
-  @media (max-width:900px){
-    .sidebar{ transform:translateX(-100%); }
-    .sidebar.open{ transform:translateX(0); }
-    .main{ margin-left:0; }
-    .menu-toggle{ display:flex; }
-    section.block{ padding-left:6vw; padding-right:6vw; }
-  }
-</style>
-
-<div class="shell">
-
-  <button class="menu-toggle" id="menuToggle" aria-label="Abrir navegación">☰</button>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-head">
-      <span class="sidebar-kicker">Análisis Numérico · UTN FRLP</span>
-      <h1 class="sidebar-title">Autovalores y el Método de la Potencia</h1>
-      <p class="sidebar-sub">Grupo 6: Bassilion, Caceres, Huari y Mazzei</p>
-    </div>
-    <nav class="nav" id="nav">
-      <a class="nav-item" data-target="inicio" href="#inicio"><span class="nav-num">00</span>Inicio</a>
-      <a class="nav-item" data-target="fundamentos" href="#fundamentos"><span class="nav-num">01</span>Fundamentos</a>
-      <a class="nav-item" data-target="metodo" href="#metodo"><span class="nav-num">02</span>Método de la Potencia</a>
-      <a class="nav-item" data-target="algoritmo" href="#algoritmo"><span class="nav-num">03</span>Algoritmo paso a paso</a>
-      <a class="nav-item" data-target="ejercicios" href="#ejercicios"><span class="nav-num">04</span>Ejercicios resueltos</a>
-      <a class="nav-item" data-target="simulador" href="#simulador"><span class="nav-num">05</span>Simulador interactivo</a>
-      <a class="nav-item" data-target="ventajas" href="#ventajas"><span class="nav-num">06</span>Ventajas y límites</a>
-      <a class="nav-item" data-target="actividad" href="#actividad"><span class="nav-num">07</span>Autoevaluación</a>
-      <a class="nav-item" data-target="referencias" href="#referencias"><span class="nav-num">08</span>Referencias</a>
-    </nav>
-    <div class="sidebar-foot">
-      <div class="theme-row">
-        <button class="theme-btn" data-theme-choice="light">Claro</button>
-        <button class="theme-btn" data-theme-choice="dark">Oscuro</button>
-        <button class="theme-btn active" data-theme-choice="system">Auto</button>
+  <main>
+    <section class="wrap hero">
+      <div>
+        <span class="eyebrow">UTN FRLP · Análisis Numérico</span>
+        <h1>Bienvenidos al repositorio del Grupo 6.</h1>
+        <p class="hero-copy">Este es nuestro espacio web para reunir y compartir los <strong>trabajos de Análisis Numérico</strong>. A medida que avancemos en la materia, iremos publicando aquí cada nueva entrega en formato interactivo.</p>
       </div>
-    </div>
-  </aside>
-
-  <main class="main">
-
-    <!-- ===================== 00 INICIO ===================== -->
-    <section class="block hero" id="inicio">
-      <span class="eyebrow">Tema de exposición</span>
-      <h1>Autovalores, autovectores y el Método de la Potencia</h1>
-      <p class="hero-lede">Toda matriz cuadrada esconde direcciones privilegiadas: los <strong>autovectores</strong>, que la transformación solo estira o encoge, sin rotar. El factor de ese estiramiento es el <strong>autovalor</strong>. Hoy vamos a mostrar cómo encontrar el autovalor más grande de una matriz <em>sin resolver el polinomio característico</em>, usando un método iterativo simple: el <strong>Método de la Potencia</strong>.</p>
-
-      <div class="hero-key">
-        <span class="glyph">λ</span>
-        <p>Idea central: si multiplicamos una y otra vez un vector cualquiera por la matriz <span class="mono">A</span>, la dirección resultante se va pareciendo cada vez más al autovector dominante — el asociado al autovalor de mayor módulo. Ahí nace el método.</p>
-      </div>
-
-      <div class="roadmap">
-        <div class="roadmap-item"><span class="roadmap-num">01</span><h4>Repasar la base</h4><p>Definiciones de autovalor, autovector y radio espectral.</p></div>
-        <div class="roadmap-item"><span class="roadmap-num">02</span><h4>Deducir el método</h4><p>Por qué iterar A·y converge al autovalor dominante.</p></div>
-        <div class="roadmap-item"><span class="roadmap-num">03</span><h4>Resolver casos</h4><p>Dos ejercicios completos, con y sin convergencia.</p></div>
-        <div class="roadmap-item"><span class="roadmap-num">04</span><h4>Autoevaluación</h4><p>Múltiple opción interactivo para fijar conceptos.</p></div>
-      </div>
+      <aside class="group-card" aria-label="Integrantes del Grupo 6">
+        <small>Nuestro equipo</small>
+        <h2>Grupo 6</h2>
+        <ul class="members">
+          <li>Bassilion, Brisa</li>
+          <li>Cáceres</li>
+          <li>Huari</li>
+          <li>Mazzei, Martina</li>
+        </ul>
+      </aside>
     </section>
 
-    <!-- ===================== 01 FUNDAMENTOS ===================== -->
-    <section class="block" id="fundamentos">
-      <span class="eyebrow">01 · Antes de arrancar</span>
-      <h2>Fundamentos que vamos a necesitar</h2>
-      <p>El Método de la Potencia no aparece de la nada: se apoya en cuatro ideas de álgebra lineal que conviene tener frescas. Las repasamos con la misma notación que vamos a usar durante toda la clase.</p>
-
-      <div class="card-grid">
-        <div class="card def-card">
-          <span class="def-label">Definición 1 — Polinomio característico</span>
-          <p>Para una matriz cuadrada <span class="mono">A</span>, el polinomio</p>
-          <div class="formula">P<sub>n</sub>(λ) = det(A − λ·I)</div>
-          <p>tiene grado a lo sumo <span class="mono">n</span> si <span class="mono">A</span> es de <span class="mono">n×n</span>. Sus raíces son, justamente, lo que buscamos.</p>
+    <section class="works" id="trabajos">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Nuestros trabajos</h2>
+          <p>Cada tarjeta reúne una entrega de la materia. Los próximos trabajos se habilitarán a medida que estén listos.</p>
         </div>
 
-        <div class="card def-card">
-          <span class="def-label">Definición 2 — Autovalor y autovector</span>
-          <p>Los ceros de <span class="mono">P<sub>n</sub>(λ)</span> son los <strong>autovalores</strong> de <span class="mono">A</span>. Si existe <span class="mono">x ≠ 0</span> tal que</p>
-          <div class="formula">(A − λ·I) · x = 0</div>
-          <p>entonces <span class="mono">x</span> es el <strong>autovector</strong> asociado a ese <span class="mono">λ</span>.</p>
-        </div>
+        <div class="grid">
+          <a class="work-card" href="trabajo-metodo-potencia.html">
+            <div class="card-top"><span class="number">TRABAJO 01</span><span class="status">Disponible</span></div>
+            <h3>Autovalores, autovectores y Método de la Potencia</h3>
+            <p>Fundamentos, algoritmo, ejercicios resueltos y un simulador interactivo.</p>
+            <span class="open">Ver trabajo <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
 
-        <div class="card def-card">
-          <span class="def-label">Definición 3 — Radio espectral</span>
-          <p>El radio espectral de <span class="mono">A</span> resume todos los autovalores en un solo número:</p>
-          <div class="formula">ρ(A) = máx |λ<sub>i</sub>|</div>
-          <p>Es exactamente lo que el Método de la Potencia va a calcular.</p>
-        </div>
+          <article class="work-card pending">
+            <div class="card-top"><span class="number">TRABAJO 02</span><span class="status">Próximamente</span></div>
+            <h3>Próximo trabajo</h3>
+            <p>Este espacio quedará disponible para la siguiente entrega.</p>
+          </article>
 
-        <div class="card def-card">
-          <span class="def-label">Teorema + Corolario</span>
-          <p>Si los autovalores <span class="mono">λ<sub>1</sub>,…,λ<sub>n</sub></span> de <span class="mono">A</span> son todos distintos, sus autovectores <span class="mono">x<sub>1</sub>,…,x<sub>n</sub></span> son linealmente independientes. Por lo tanto forman una base, y <em>cualquier</em> vector se escribe como:</p>
-          <div class="formula">v = c<sub>1</sub>x<sub>1</sub> + c<sub>2</sub>x<sub>2</sub> + … + c<sub>n</sub>x<sub>n</sub></div>
-          <p>Esta descomposición es la pieza clave que hace funcionar todo lo que sigue.</p>
+          <article class="work-card pending">
+            <div class="card-top"><span class="number">TRABAJO 03</span><span class="status">Próximamente</span></div>
+            <h3>Próximo trabajo</h3>
+            <p>Este espacio quedará disponible para una futura entrega.</p>
+          </article>
+
+          <article class="work-card pending">
+            <div class="card-top"><span class="number">TRABAJO 04</span><span class="status">Próximamente</span></div>
+            <h3>Próximo trabajo</h3>
+            <p>Este espacio quedará disponible para una futura entrega.</p>
+          </article>
         </div>
       </div>
     </section>
-
-    <!-- ===================== 02 MÉTODO ===================== -->
-    <section class="block" id="metodo">
-      <span class="eyebrow">02 · El corazón del tema</span>
-      <h2>Por qué iterar con A converge al autovalor dominante</h2>
-      <p>Partimos de un vector inicial cualquiera <span class="mono">y<sub>0</sub></span> y generamos la sucesión</p>
-      <div class="formula">y<sub>i+1</sub> = A · y<sub>i</sub> ,  i = 0, 1, 2, …</div>
-      <p>Usando el corolario anterior escribimos <span class="mono">y<sub>0</sub> = c<sub>1</sub>x<sub>1</sub> + c<sub>2</sub>x<sub>2</sub> + … + c<sub>n</sub>x<sub>n</sub></span> y aplicamos <span class="mono">A</span> repetidamente. Como <span class="mono">A·x<sub>j</sub> = λ<sub>j</sub>·x<sub>j</sub></span>, cada aplicación de <span class="mono">A</span> simplemente multiplica el término <span class="mono">j</span> por <span class="mono">λ<sub>j</sub></span>. Después de <span class="mono">k+1</span> pasos:</p>
-      <div class="formula">y<sub>k+1</sub> = c<sub>1</sub>λ<sub>1</sub><sup>k+1</sup>x<sub>1</sub> + c<sub>2</sub>λ<sub>2</sub><sup>k+1</sup>x<sub>2</sub> + … + c<sub>n</sub>λ<sub>n</sub><sup>k+1</sup>x<sub>n</sub></div>
-
-      <p>Acá está el truco: si ordenamos los autovalores de modo que <span class="mono">|λ<sub>1</sub>| &gt; |λ<sub>2</sub>| &gt; … &gt; |λ<sub>n</sub>|</span> y dividimos toda la expresión por <span class="mono">λ<sub>1</sub><sup>k+1</sup></span>, cada cociente <span class="mono">(λ<sub>j</sub>/λ<sub>1</sub>)<sup>k+1</sup></span> con <span class="mono">j ≥ 2</span> tiende a cero cuando <span class="mono">k → ∞</span>, porque su módulo es menor que 1. Sobrevive un solo término:</p>
-      <div class="formula">lim(k→∞)  y<sub>k+1</sub> / λ<sub>1</sub><sup>k+1</sup>  =  c<sub>1</sub> · x<sub>1</sub></div>
-
-      <div class="note">
-        <span class="tag">Lectura</span>
-        <p>En criollo: el término dominante "aplasta" a todos los demás. Después de suficientes iteraciones, el vector <span class="mono">y<sub>k</sub></span> apunta prácticamente en la dirección de <span class="mono">x<sub>1</sub></span>, el autovector dominante.</p>
-      </div>
-
-      <p>¿Y cómo aislamos el número <span class="mono">λ<sub>1</sub></span> sin conocer <span class="mono">x<sub>1</sub></span> de antemano? Tomando el cociente entre una misma componente <span class="mono">j</span> de dos iteraciones consecutivas. Todo lo que no es <span class="mono">λ<sub>1</sub></span> se cancela en el límite:</p>
-      <div class="formula">lim(k→∞)   [y<sub>0</sub>]<sup>k+1</sup> / [y<sub>0</sub>]<sup>k</sup>   =   λ<sub>1</sub></div>
-      <p>Esa es, en definitiva, toda la maquinaria del método: iterar <span class="mono">y = A·y</span> y mirar cómo se estabiliza el cociente de una componente.</p>
-    </section>
-
-    <!-- ===================== 03 ALGORITMO ===================== -->
-    <section class="block" id="algoritmo">
-      <span class="eyebrow">03 · Llevarlo a la práctica</span>
-      <h2>El algoritmo, paso a paso</h2>
-      <div class="stepper">
-        <div class="step" data-n="1"><h4>Elegir un vector inicial y<sub>0</sub></h4><p>No hace falta que sea especial, solo que no sea ortogonal a x<sub>1</sub> (el autovector dominante). Como no lo conocemos de antemano, en la práctica se usa cualquier vector "genérico", por ejemplo (1,0,…,0).</p></div>
-        <div class="step" data-n="2"><h4>Iterar y<sub>k+1</sub> = A · y<sub>k</sub></h4><p>Es solo un producto matriz–vector en cada paso: la operación más barata del álgebra lineal.</p></div>
-        <div class="step" data-n="3"><h4>Calcular el cociente de una componente</h4><p>Elegimos una componente j (conviene la de mayor módulo) y calculamos [y<sub>k+1</sub>]<sub>j</sub> / [y<sub>k</sub>]<sub>j</sub>. Ese número se acerca a λ<sub>1</sub>.</p></div>
-        <div class="step" data-n="4"><h4>Chequear convergencia</h4><p>Si la diferencia entre cocientes sucesivos es menor que una tolerancia fijada, detenemos el proceso.</p></div>
-        <div class="step" data-n="5"><h4>Leer el resultado</h4><p>λ<sub>1</sub> ≈ el último cociente calculado. x<sub>1</sub> ≈ y<sub>k+1</sub> (normalizado, para que sus valores no crezcan sin límite).</p></div>
-      </div>
-
-      <h3 style="margin-top:2.2rem;">Cuatro observaciones que conviene tener presentes</h3>
-      <div class="card-grid cols-2">
-        <div class="card"><h3>a) Multiplicidad</h3><p>Si λ<sub>1</sub> es raíz múltiple, el método converge igual — pero el vector límite depende, en general, del y<sub>0</sub> elegido.</p></div>
-        <div class="card"><h3>b) Velocidad</h3><p>La convergencia es más rápida cuanto más chico es el cociente |λ<sub>j</sub>/λ<sub>1</sub>|: cuanto más "separado" está el autovalor dominante del resto.</p></div>
-        <div class="card"><h3>c) Condición de convergencia</h3><p>La sucesión converge si |λ<sub>1</sub>| &lt; 1 (ρ(A) &lt; 1) y diverge si |λ<sub>1</sub>| &gt; 1 (ρ(A) &gt; 1), siempre que c<sub>1</sub> ≠ 0.</p></div>
-        <div class="card"><h3>d) El problema del huevo y la gallina</h3><p>Para garantizar c<sub>1</sub> ≠ 0 convendría elegir y<sub>0</sub> no ortogonal a x<sub>1</sub>, pero x<sub>1</sub> es justo lo que estamos buscando. En la práctica se acepta el riesgo: es poco probable elegir un y<sub>0</sub> exactamente ortogonal.</p></div>
-      </div>
-    </section>
-
-    <!-- ===================== 04 EJERCICIOS ===================== -->
-    <section class="block" id="ejercicios">
-      <span class="eyebrow">04 · Manos a la obra</span>
-      <h2>Ejercicios resueltos</h2>
-      <p>Dos casos trabajados en la cátedra: uno donde el radio espectral supera 1 (diverge) y uno donde vale 0 (converge). Sirven para mostrar que "aplicar el método" y "que el método sirva" no son lo mismo.</p>
-
-      <!-- EJERCICIO 1 -->
-      <div class="exercise">
-        <div class="exercise-head">
-          <h3>Ejercicio 1 — Autovalores, autovector y radio espectral</h3>
-          <span class="badge diverge">No converge</span>
-        </div>
-        <div class="exercise-body">
-          <p>Partimos de la matriz</p>
-          <div class="matrix-wrap">
-            <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
-              <span>1</span><span>0</span><span>2</span>
-              <span>0</span><span>1</span><span>−1</span>
-              <span>−1</span><span>1</span><span>1</span>
-            </div>
-            <span>= A</span>
-          </div>
-
-          <div class="exercise-step">
-            <span class="step-label">a) Autovalores</span>
-            <p>Planteamos <span class="mono">det(A − λI) = 0</span> y expandimos por la primera fila:</p>
-            <div class="formula">det(A−λI) = (1−λ)·[(1−λ)² + 1] + 2·[1−λ]
-           = (1−λ)·[λ² − 2λ + 4] = 0</div>
-            <p>El primer factor da <span class="mono">λ<sub>1</sub> = 1</span>. El segundo es cuadrático:</p>
-            <div class="formula">λ = (2 ± √(4 − 16)) / 2 = 1 ± √3·i</div>
-            <div class="lambda-row">
-              <span class="lambda-pill real">λ<sub>1</sub> = 1</span>
-              <span class="lambda-pill cplx">λ<sub>2</sub> = 1 + √3 i</span>
-              <span class="lambda-pill cplx">λ<sub>3</sub> = 1 − √3 i</span>
-            </div>
-          </div>
-
-          <div class="exercise-step">
-            <span class="step-label">b) Autovector asociado a λ<sub>1</sub> = 1</span>
-            <p>Resolvemos <span class="mono">(A − I)·x = 0</span>:</p>
-            <div class="matrix-wrap">
-              <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
-                <span>0</span><span>0</span><span>2</span>
-                <span>0</span><span>0</span><span>−1</span>
-                <span>−1</span><span>1</span><span>0</span>
-              </div>
-              <span>· x = 0</span>
-            </div>
-            <p>El sistema se reduce a <span class="mono">x<sub>1</sub> = x<sub>2</sub></span> y <span class="mono">x<sub>3</sub> = 0</span>. Eligiendo <span class="mono">x<sub>1</sub> = 2</span>:</p>
-            <div class="result-box"><p><span class="mono">x = (2, 2, 0)</span> es el autovector asociado a λ<sub>1</sub> = 1.</p></div>
-          </div>
-
-          <div class="exercise-step">
-            <span class="step-label">c) Radio espectral y convergencia</span>
-            <p>Tomamos módulo de cada autovalor (para los complejos, <span class="mono">|a+bi| = √(a²+b²)</span>):</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Autovalor</th><th>Módulo</th></tr></thead>
-                <tbody>
-                  <tr><td>λ<sub>1</sub> = 1</td><td>|λ<sub>1</sub>| = 1</td></tr>
-                  <tr><td>λ<sub>2</sub> = 1 + √3 i</td><td>|λ<sub>2</sub>| = √(1+3) = 2</td></tr>
-                  <tr><td>λ<sub>3</sub> = 1 − √3 i</td><td>|λ<sub>3</sub>| = √(1+3) = 2</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="result-box"><p>ρ(A) = máx|λ<sub>i</sub>| = <strong>2</strong> &gt; 1 → la sucesión del método <strong>diverge</strong>. Un detalle importante: acá el "autovalor dominante" no es único ni real — hay dos autovalores complejos conjugados empatados en módulo máximo, así que el método de la potencia clásico ni siquiera está en condiciones ideales para aplicarse.</p></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EJERCICIO 2 -->
-      <div class="exercise">
-        <div class="exercise-head">
-          <h3>Ejercicio 2 — Matriz de Jacobi asociada a un sistema</h3>
-          <span class="badge converge">Converge</span>
-        </div>
-        <div class="exercise-body">
-          <p>En métodos iterativos para sistemas lineales aparece la matriz de Jacobi <span class="mono">J = I − D⁻¹·A</span>, construida a partir de:</p>
-          <div class="matrix-wrap">
-            <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
-              <span>1</span><span>2</span><span>−2</span>
-              <span>1</span><span>1</span><span>1</span>
-              <span>2</span><span>2</span><span>1</span>
-            </div>
-            <span>= A</span>
-          </div>
-          <div class="matrix-wrap">
-            <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
-              <span>1</span><span>0</span><span>0</span>
-              <span>0</span><span>1</span><span>0</span>
-              <span>0</span><span>0</span><span>1</span>
-            </div>
-            <span>= D</span>
-          </div>
-
-          <div class="exercise-step">
-            <span class="step-label">a) Construcción de J y sus autovalores</span>
-            <p>Como <span class="mono">D = I</span>, entonces <span class="mono">D⁻¹ = I</span> y <span class="mono">J = I − A</span>:</p>
-            <div class="matrix-wrap">
-              <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
-                <span>0</span><span>−2</span><span>2</span>
-                <span>−1</span><span>0</span><span>−1</span>
-                <span>−2</span><span>−2</span><span>0</span>
-              </div>
-              <span>= J</span>
-            </div>
-            <p>Planteamos <span class="mono">det(J − λI) = 0</span> y expandimos:</p>
-            <div class="formula">det(J−λI) = −λ·[λ² − 2] + 2·[λ − 2] + 2·[2 − 2λ]
-           = −λ³ + 2λ + 2λ − 4 + 4 − 4λ
-           = −λ³ = 0</div>
-            <div class="result-box"><p><span class="mono">λ<sub>1,2,3</sub> = 0</span> (raíz triple).</p></div>
-          </div>
-
-          <div class="exercise-step">
-            <span class="step-label">b) Convergencia</span>
-            <div class="result-box"><p>ρ(J) = máx|λ<sub>i</sub>| = <strong>0</strong> &lt; 1 → el proceso iterativo basado en J <strong>converge</strong>, y lo hace de la forma más rápida posible: en cero pasos "extra" de error, ya que todos los autovalores son nulos.</p></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 05 SIMULADOR ===================== -->
-    <section class="block" id="simulador">
-      <span class="eyebrow">05 · Para mostrar en vivo</span>
-      <h2>Simulador: viendo converger el cociente a λ<sub>1</sub></h2>
-      <p>Usamos una matriz con autovalores reales y bien separados, <span class="mono">A = [[4,1],[2,3]]</span>, cuyos autovalores exactos son <span class="mono">λ = 5</span> y <span class="mono">λ = 2</span>. Partimos de <span class="mono">y<sub>0</sub> = (1, 0)</span> e iteramos en vivo: cada click aplica <span class="mono">y ← A·y</span> y recalcula el cociente de la primera componente.</p>
-
-      <div class="sim">
-        <div class="sim-top">
-          <div class="sim-controls">
-            <button class="btn primary" id="simStep">Iterar (y ← A·y)</button>
-            <button class="btn" id="simReset">Reiniciar</button>
-          </div>
-          <div class="sim-readout">
-            <div class="readout"><span class="k">Iteración k</span><span class="v" id="roK">0</span></div>
-            <div class="readout"><span class="k">Cociente [y]₁</span><span class="v" id="roRatio">—</span></div>
-            <div class="readout"><span class="k">λ<sub>1</sub> real</span><span class="v">5</span></div>
-          </div>
-        </div>
-        <div class="sim-grid">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>k</th><th>y<sub>k</sub></th><th>cociente [y]<sub>1</sub><sup>k+1</sup>/[y]<sub>1</sub><sup>k</sup></th></tr></thead>
-              <tbody id="simTable"></tbody>
-            </table>
-          </div>
-          <div>
-            <canvas id="simChart" width="600" height="220" role="img" aria-label="Gráfico de convergencia del cociente hacia el autovalor dominante"></canvas>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 06 VENTAJAS ===================== -->
-    <section class="block" id="ventajas">
-      <span class="eyebrow">06 · Mirada crítica</span>
-      <h2>Ventajas, límites y dificultades</h2>
-      <div class="card-grid cols-3">
-        <div class="card">
-          <h3>👍 Ventajas</h3>
-          <p>Solo requiere productos matriz–vector: es barato y fácil de programar. Funciona muy bien con matrices grandes y dispersas, donde calcular el polinomio característico completo sería carísimo.</p>
-        </div>
-        <div class="card">
-          <h3>⚠️ Limitaciones</h3>
-          <p>Necesita un autovalor estrictamente dominante en módulo. Si dos autovalores empatan en módulo máximo (como en el Ejercicio 1, con un par complejo conjugado) o son iguales, el método clásico no converge a un único resultado.</p>
-        </div>
-        <div class="card">
-          <h3>🧩 Dificultades prácticas</h3>
-          <p>Elegir y<sub>0</sub> no ortogonal a x<sub>1</sub> sin conocer x<sub>1</sub> de antemano; normalizar en cada paso para que los valores no exploten ni se anulen numéricamente; y definir un criterio de corte razonable.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 07 AUTOEVALUACIÓN ===================== -->
-    <section class="block" id="actividad">
-      <span class="eyebrow">07 · Ponete a prueba</span>
-      <h2>Autoevaluación</h2>
-      <p>Un click revela la respuesta correcta y una breve justificación — ideal para chequear si los conceptos principales quedaron claros.</p>
-
-      <div class="quiz" id="quiz">
-        <div class="quiz-item" data-correct="1">
-          <div class="quiz-q">1. El Método de la Potencia calcula...</div>
-          <div class="quiz-opts">
-            <button class="opt" data-idx="0">El autovalor más chico en módulo</button>
-            <button class="opt" data-idx="1">El autovalor más grande en módulo (el radio espectral)</button>
-            <button class="opt" data-idx="2">Todos los autovalores a la vez</button>
-          </div>
-          <div class="quiz-explain">Correcto: el término con λ<sub>1</sub> (el de mayor módulo) domina a todos los demás a medida que k crece, por eso "sobrevive" en el límite.</div>
-        </div>
-
-        <div class="quiz-item" data-correct="2">
-          <div class="quiz-q">2. ¿Qué condición sobre y<sub>0</sub> hace falta para que el método funcione?</div>
-          <div class="quiz-opts">
-            <button class="opt" data-idx="0">Que sea unitario</button>
-            <button class="opt" data-idx="1">Que sea un autovector cualquiera de A</button>
-            <button class="opt" data-idx="2">Que no sea ortogonal al autovector dominante x<sub>1</sub></button>
-          </div>
-          <div class="quiz-explain">Correcto: si y<sub>0</sub> fuera ortogonal a x<sub>1</sub>, el coeficiente c<sub>1</sub> sería cero y el término dominante nunca aparecería en la combinación lineal.</div>
-        </div>
-
-        <div class="quiz-item" data-correct="1">
-          <div class="quiz-q">3. Si ρ(A) &gt; 1, la sucesión y<sub>k</sub>...</div>
-          <div class="quiz-opts">
-            <button class="opt" data-idx="0">Converge igual, más lento</button>
-            <button class="opt" data-idx="1">Diverge (crece sin límite)</button>
-            <button class="opt" data-idx="2">Oscila entre dos valores</button>
-          </div>
-          <div class="quiz-explain">Correcto: si |λ<sub>1</sub>| &gt; 1, la potencia λ<sub>1</sub><sup>k+1</sup> crece indefinidamente, y con ella el vector y<sub>k</sub>.</div>
-        </div>
-
-        <div class="quiz-item" data-correct="0">
-          <div class="quiz-q">4. En el Ejercicio 1, ¿por qué es problemático aplicar el método de la potencia?</div>
-          <div class="quiz-opts">
-            <button class="opt" data-idx="0">Porque λ<sub>2</sub> y λ<sub>3</sub> empatan en módulo máximo (y encima son complejos)</button>
-            <button class="opt" data-idx="1">Porque la matriz no es cuadrada</button>
-            <button class="opt" data-idx="2">Porque λ<sub>1</sub> es igual a 1</button>
-          </div>
-          <div class="quiz-explain">Correcto: el "autovalor dominante" no está bien definido cuando hay un empate en el módulo máximo — ahí la deducción del método deja de valer.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 08 REFERENCIAS ===================== -->
-    <section class="block" id="referencias">
-      <span class="eyebrow">08 · Fuentes</span>
-      <h2>Referencias</h2>
-      <ul class="ref-list">
-        <li class="ref-item">
-          <span class="ref-icon">[1]</span>
-          <div><strong>Teoría de Autovalores y Autovectores</strong><span>Ing. Amiconi, Diego Federico. Cátedras de Modelos Numéricos, Análisis Numérico y Cálculo Avanzado — U.T.N. Facultad Regional La Plata. Apunte de cátedra.</span></div>
-        </li>
-        <li class="ref-item">
-          <span class="ref-icon">[2]</span>
-          <div><strong>Ejercicios resueltos — Autovalores y Autovectores</strong><span>Ing. Amiconi, Diego Federico. Cátedras de Modelos Numéricos, Análisis Numérico y Cálculo Avanzado — U.T.N. Facultad Regional La Plata. Apunte de cátedra.</span></div>
-        </li>
-        <li class="ref-item">
-          <span class="ref-icon">[3]</span>
-          <div><strong>Bibliografía complementaria sugerida</strong><span>Burden, R. L. &amp; Faires, J. D. — "Análisis Numérico", capítulos sobre autovalores y métodos iterativos. Útil para profundizar la demostración de convergencia y comparar con el método QR.</span></div>
-        </li>
-      </ul>
-    </section>
-
-    <footer class="page-foot">Página preparada como material de apoyo para la exposición oral de Análisis Numérico — tema Autovalores, Autovectores y Método de la Potencia.<br><strong>Grupo 6: Bassilion, Caceres, Huari y Mazzei — UTN FRLP</strong></footer>
   </main>
-</div>
 
-<script>
-(function(){
-  // ---------- Theme switching ----------
-  var root = document.documentElement;
-  var themeBtns = document.querySelectorAll('.theme-btn');
-  function setTheme(choice){
-    if(choice === 'system'){ root.removeAttribute('data-theme'); }
-    else { root.setAttribute('data-theme', choice); }
-    themeBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-choice') === choice); });
-    try{ localStorage.setItem('potencia-theme', choice); }catch(e){}
-  }
-  themeBtns.forEach(function(b){ b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-choice')); }); });
-  try{
-    var saved = localStorage.getItem('potencia-theme');
-    if(saved) setTheme(saved);
-  }catch(e){}
-
-  // ---------- Mobile nav ----------
-  var sidebar = document.getElementById('sidebar');
-  var toggle = document.getElementById('menuToggle');
-  toggle.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
-  document.querySelectorAll('.nav-item').forEach(function(a){
-    a.addEventListener('click', function(){ sidebar.classList.remove('open'); });
-  });
-
-  // ---------- Scrollspy ----------
-  var sections = Array.from(document.querySelectorAll('section.block'));
-  var navItems = Array.from(document.querySelectorAll('.nav-item'));
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        var id = entry.target.id;
-        navItems.forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-target') === id); });
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
-  sections.forEach(function(s){ obs.observe(s); });
-
-  // ---------- Fade-in on scroll ----------
-  var fadeTargets = document.querySelectorAll('.card, .exercise, .sim, .quiz-item, .step');
-  fadeTargets.forEach(function(el){ el.classList.add('fade-in'); });
-  var fadeObs = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){ entry.target.classList.add('in'); fadeObs.unobserve(entry.target); }
-    });
-  }, { threshold: 0.12 });
-  fadeTargets.forEach(function(el){ fadeObs.observe(el); });
-
-  // ---------- Quiz ----------
-  document.querySelectorAll('.quiz-item').forEach(function(item){
-    var correct = parseInt(item.getAttribute('data-correct'), 10);
-    var opts = item.querySelectorAll('.opt');
-    var explain = item.querySelector('.quiz-explain');
-    var answered = false;
-    opts.forEach(function(opt){
-      opt.addEventListener('click', function(){
-        if(answered) return;
-        answered = true;
-        var idx = parseInt(opt.getAttribute('data-idx'), 10);
-        opts.forEach(function(o){
-          var oIdx = parseInt(o.getAttribute('data-idx'), 10);
-          if(oIdx === correct) o.classList.add('correct');
-          else if(o === opt) o.classList.add('wrong');
-        });
-        explain.classList.add('show');
-      });
-    });
-  });
-
-  // ---------- Power method simulator ----------
-  var A = [[4,1],[2,3]];
-  var y = [1,0];
-  var k = 0;
-  var history = []; // {k, y, ratio}
-  var stepBtn = document.getElementById('simStep');
-  var resetBtn = document.getElementById('simReset');
-  var tableBody = document.getElementById('simTable');
-  var roK = document.getElementById('roK');
-  var roRatio = document.getElementById('roRatio');
-  var canvas = document.getElementById('simChart');
-  var ctx = canvas.getContext('2d');
-
-  function fmt(n){ return (Math.round(n*1000)/1000).toString(); }
-
-  function render(){
-    roK.textContent = k;
-    var last = history[history.length-1];
-    roRatio.textContent = last ? fmt(last.ratio) : '—';
-    tableBody.innerHTML = history.map(function(h){
-      return '<tr><td>'+h.k+'</td><td>('+fmt(h.y[0])+', '+fmt(h.y[1])+')</td><td>'+(h.ratio===null?'—':fmt(h.ratio))+'</td></tr>';
-    }).join('');
-    drawChart();
-  }
-
-  function drawChart(){
-    var w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
-    var styles = getComputedStyle(document.documentElement);
-    var line = styles.getPropertyValue('--line').trim();
-    var ink = styles.getPropertyValue('--ink-soft').trim();
-    var accent = styles.getPropertyValue('--accent').trim();
-    var converge = styles.getPropertyValue('--converge').trim();
-    var pad = 34;
-    // axes
-    ctx.strokeStyle = line; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad, h-pad); ctx.lineTo(w-10, h-pad); ctx.moveTo(pad, 10); ctx.lineTo(pad, h-pad); ctx.stroke();
-
-    var ratios = history.filter(function(hh){return hh.ratio!==null;}).map(function(hh){return hh.ratio;});
-    var maxV = Math.max(6, ratios.length ? Math.max.apply(null, ratios)+0.5 : 6);
-    var minV = 0;
-
-    function xAt(i){ return pad + (i/(Math.max(history.length-1,1))) * (w - pad - 20); }
-    function yAt(v){ return (h-pad) - ((v-minV)/(maxV-minV)) * (h - pad - 20); }
-
-    // target line lambda=5
-    ctx.strokeStyle = converge; ctx.setLineDash([5,4]); ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.moveTo(pad, yAt(5)); ctx.lineTo(w-10, yAt(5)); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = converge; ctx.font = '11px IBM Plex Mono, monospace';
-    ctx.fillText('λ₁ = 5', w-58, yAt(5)-6);
-
-    // ratio labels y axis
-    ctx.fillStyle = ink; ctx.font = '10px IBM Plex Mono, monospace';
-    ctx.fillText(String(Math.round(maxV)), 4, yAt(maxV)+4);
-    ctx.fillText('0', 12, yAt(0));
-
-    if(ratios.length){
-      ctx.strokeStyle = accent; ctx.lineWidth = 2;
-      ctx.beginPath();
-      var idxCounter = 0;
-      history.forEach(function(hh, i){
-        if(hh.ratio===null) return;
-        var px = xAt(i), py = yAt(hh.ratio);
-        if(idxCounter===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
-        idxCounter++;
-      });
-      ctx.stroke();
-      history.forEach(function(hh,i){
-        if(hh.ratio===null) return;
-        ctx.beginPath(); ctx.fillStyle = accent; ctx.arc(xAt(i), yAt(hh.ratio), 3, 0, Math.PI*2); ctx.fill();
-      });
-    }
-  }
-
-  function reset(){
-    y = [1,0]; k = 0; history = [{k:0, y:y.slice(), ratio:null}];
-    render();
-  }
-
-  function step(){
-    var prevFirst = y[0];
-    var ny = [ A[0][0]*y[0]+A[0][1]*y[1], A[1][0]*y[0]+A[1][1]*y[1] ];
-    k++;
-    var ratio = prevFirst !== 0 ? ny[0]/prevFirst : null;
-    y = ny;
-    history.push({k:k, y:y.slice(), ratio: ratio});
-    if(history.length > 10){ /* keep table compact but keep chart data */ }
-    render();
-  }
-
-  stepBtn.addEventListener('click', step);
-  resetBtn.addEventListener('click', reset);
-  reset();
-
-  window.addEventListener('resize', drawChart);
-})();
-</script>
+  <footer>
+    <div class="wrap footer-inner">
+      <span>Grupo 6 · Análisis Numérico</span>
+      <span>Universidad Tecnológica Nacional · FRLP</span>
+    </div>
+  </footer>
+</body>
+</html>
