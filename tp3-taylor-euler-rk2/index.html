@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Taylor, Euler mejorado y RK2 · Grupo 6</title>
+<meta name="description" content="Comparativa de los métodos de Taylor (orden 2), Euler mejorado y Runge-Kutta 2 para problemas de valor inicial — Análisis Numérico, Grupo 6." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>∫</text></svg>" />
+<link rel="stylesheet" href="vendor/katex/katex.min.css" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="grid-bg" aria-hidden="true"></div>
+
+<!-- ======================= NAV ======================= -->
+<header class="topnav">
+  <a class="brand" href="#inicio"><span class="dot"></span> Grupo&nbsp;6 <span class="mono muted" style="font-weight:400;">/ Análisis Numérico</span></a>
+  <nav aria-label="Secciones">
+    <div class="navlinks" id="navlinks">
+      <a href="#pvi">1 · PVI</a>
+      <a href="#metodos">2 · Métodos</a>
+      <a href="#comparacion">3 · Comparación</a>
+      <a href="#calculadora">4 · Calculadora</a>
+      <a href="#laboratorio">5 · Laboratorio</a>
+      <a href="#conclusion">6 · Conclusión</a>
+    </div>
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </nav>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero container" id="inicio">
+  <div class="hero-grid">
+    <div>
+      <div class="kicker">ECUACIONES&nbsp;DIFERENCIALES · <b>PROBLEMAS&nbsp;DE&nbsp;VALOR&nbsp;INICIAL</b> · Análisis Numérico</div>
+      <h1 class="reveal">Taylor, Euler mejorado <em>y Runge-Kutta 2</em></h1>
+      <p class="lede reveal">Tres formas de avanzar paso a paso en una ecuación diferencial, con el mismo orden de precisión pero ideas distintas. Acá vas a ver cómo funciona cada una, en qué se parecen, en qué se diferencian y cuándo conviene cuál — y una <strong>calculadora</strong> para resolver cualquier ejercicio que quieras.</p>
+      <div class="hero-cta reveal">
+        <a class="btn primary" href="#calculadora">Ir a la calculadora</a>
+        <a class="btn" href="#pvi">Estudiar el tema desde cero</a>
+      </div>
+      <div class="hero-meta reveal">
+        <div class="item"><div class="label">Grupo</div><div class="value">N.º 6</div></div>
+        <div class="item"><div class="label">Integrantes</div><div class="value">Bassilion, Brisa · Cáceres, Juan<br>Huari, Cesar · Mazzei, Martina</div></div>
+        <div class="item"><div class="label">Cátedra</div><div class="value">Análisis Numérico</div></div>
+        <div class="item"><div class="label">Tema</div><div class="value mono">EDO · PVI · Taylor / Euler mej. / RK2</div></div>
+      </div>
+    </div>
+    <div class="hero-fig reveal">
+      <div id="heroFigure"></div>
+      <div class="cap">Mismo problema, mismo paso <span class="mono">h</span>: Euler (gris) se queda corto; Taylor, Euler mejorado y RK2 quedan mucho más cerca de la solución exacta (la curva que termina en el círculo vacío).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 1. PVI ======================= -->
+<section class="block container" id="pvi">
+  <div class="eyebrow reveal">1 · Punto de partida</div>
+  <h2 class="section-title reveal">El problema de valor inicial (PVI)</h2>
+  <p class="section-lede reveal">Antes de comparar métodos hay que tener claro <em>qué</em> problema resuelven. Todo el tema se apoya en cuatro datos y en una idea: avanzar de a pasos.</p>
+
+  <div class="reveal" style="margin-bottom:var(--space-10);">
+    <h3 style="margin:0 0 var(--space-2); font-size:1.15rem;">Antes de empezar: el vocabulario</h3>
+    <p style="color:var(--text-secondary); margin:0 0 var(--space-4); max-width:70ch;">Estas palabras van a aparecer todo el tiempo. Si alguna no te cierra, volvé acá.</p>
+    <div class="gloss-grid">
+      <div class="gloss"><div class="term">EDO · PVI</div><div class="def">Ecuación diferencial ordinaria que relaciona una función con su derivada. Un <b>problema de valor inicial</b> le suma una condición inicial, un dominio y un paso.</div></div>
+      <div class="gloss"><div class="term">Condición inicial \(y(x_0) = y_0\)</div><div class="def">El punto de partida: el valor de \(y\) en \(x_0\).</div></div>
+      <div class="gloss"><div class="term">Paso \(h\)</div><div class="def">Cuánto avanzamos en \(x\) en cada iteración: \(x_{n+1} = x_n + h\).</div></div>
+      <div class="gloss"><div class="term">Nodos \(x_n\)</div><div class="def">Los puntos donde calculamos: \(x_0, x_1, \dots, x_n\).</div></div>
+      <div class="gloss"><div class="term">Pendiente \(f(x,y)\)</div><div class="def">Cuánto está subiendo \(y\) en ese punto: es el lado derecho de \(y' = f(x,y)\).</div></div>
+      <div class="gloss"><div class="term">Ordenada genérica \(y_{n+1}\)</div><div class="def">La fórmula que da el siguiente valor a partir de \((x_n, y_n)\). Cada método tiene la suya.</div></div>
+      <div class="gloss"><div class="term">\(y_n\) y \(y(x_n)\)</div><div class="def">\(y_n\) es el valor <b>aproximado</b> que calculamos; \(y(x_n)\) es el valor <b>exacto</b> de la solución.</div></div>
+      <div class="gloss"><div class="term">Error local · global</div><div class="def">Lo que se equivoca el método en <em>un</em> paso · lo que se acumula al recorrer <em>todo</em> el dominio.</div></div>
+      <div class="gloss"><div class="term">Orden del método</div><div class="def">Un método de orden \(p\) tiene error global \(O(h^p)\): achicar \(h\) lo mejora a ese ritmo.</div></div>
+    </div>
+  </div>
+
+  <div class="prose reveal" style="max-width:78ch;">
+      <h3>¿Qué es una ecuación diferencial ordinaria?</h3>
+      <p>Es una ecuación donde la incógnita es una <strong>función</strong> \(y(x)\) y aparece su <strong>derivada</strong>. La forma que estudiamos es:</p>
+      <div class="eqn accent">\[ y' = f\big(x,\,y(x)\big) = \frac{dy}{dx} \]</div>
+      <p><strong>En criollo:</strong> la ecuación no te dice cuánto <em>vale</em> \(y\); te dice <strong>cómo está cambiando</strong> (su pendiente) según dónde estés (\(x\)) y cuánto valga \(y\) en ese momento.</p>
+      <p>Muchas veces no se puede despejar \(y(x)\) con una fórmula. Como dice el apunte, <em>«muchos problemas de ingeniería no pueden resolverse analíticamente»</em>: entonces la función se va <strong>construyendo de a pasos</strong>, de forma aproximada. Eso son los <strong>métodos numéricos</strong>.</p>
+
+      <h3>Los cuatro datos que definen un PVI</h3>
+      <ol>
+        <li><strong>La ecuación</strong> \(y' = f(x, y(x))\).</li>
+        <li><strong>La condición inicial</strong> \(y(x_0) = y_0\). Por ejemplo, \(y(-1) = 2.5\) significa \(x_0 = -1\) y \(y_0 = 2.5\).</li>
+        <li><strong>El dominio de trabajo</strong> \(x_0 \le x \le x_f\) (valor inicial y valor final).</li>
+        <li><strong>El paso</strong> \(h\), con el que se recorre el dominio: \(x_{n+1} = x_n + h\), o sea \(x_1 = x_0 + h,\; x_2 = x_1 + h,\; \dots\)</li>
+      </ol>
+      <p>Con esas cuatro cosas tenemos un <strong>problema de valor inicial</strong>.</p>
+
+      <h3>¿Cuántas iteraciones hay que hacer?</h3>
+      <div class="eqn">\[ n = \frac{x_f - x_0}{h} \]</div>
+      <p>Ejemplo del apunte: \(y(1) = 1\), hallar \(y(1.3)\) con \(h = 0.1\). Entonces \(x_0 = 1\), \(x_f = 1.3\) y \(n = \frac{1.3 - 1}{0.1} = 3\) iteraciones: \(x_1 = 1.1,\; x_2 = 1.2,\; x_3 = 1.3\).</p>
+
+      <h3>La idea común: la «ordenada genérica»</h3>
+      <p>Conocemos el punto \((x_n, y_n)\) y queremos el siguiente valor \(y_{n+1}\). Cada método da una fórmula para calcularlo: esa fórmula es la <strong>ordenada genérica</strong>. Se arma <strong>una sola vez</strong> (reemplazando la \(f\) del enunciado) y después, en cada iteración, sólo se <strong>reemplazan los números</strong>.</p>
+      <p>Los tres métodos de este trabajo son de <strong>paso simple</strong>: para calcular \(y_{n+1}\) usan información de un solo intervalo \([x_n;\,x_{n+1}]\) (en los de paso múltiple, como Adams-Bashforth, hace falta mirar varios intervalos anteriores).</p>
+
+      <div class="callout tip"><span class="ttl">Ojo con la notación</span>
+        <p>\(y_n\) es el valor <strong>aproximado</strong> que calculamos; \(y(x_n)\) es el valor <strong>exacto</strong> de la solución. Un método es bueno cuando \(y_n \approx y(x_n)\).</p>
+        <p>La variable independiente puede llamarse \(x\) o \(t\): el método es exactamente el mismo.</p>
+      </div>
+    </div>
+</section>
+
+<!-- ======================= 2. MÉTODOS ======================= -->
+<section class="block container" id="metodos">
+  <div class="eyebrow reveal">2 · Los métodos</div>
+  <h2 class="section-title reveal">Una forma de partida y tres formas de mejorarla</h2>
+  <p class="section-lede reveal">Todos parten de \((x_n, y_n)\) y avanzan una distancia \(h\). La única diferencia es <strong>con qué pendiente avanzan</strong>. Las figuras usan el mismo ejemplo didáctico, \(y' = y^2,\; y(0) = 1,\; h = 0.5\); la <strong>curva que termina en el círculo vacío</strong> es la solución exacta y los puntos de colores son lo que predice cada método en \(x_1 = 0.5\).</p>
+
+  <!-- Euler -->
+  <article class="method-card m-euler reveal" id="m-euler">
+    <div>
+      <h3><span class="mbadge mb-euler">Euler</span> <span class="badge">punto de partida · orden 1</span></h3>
+      <p class="idea"><strong>Idea:</strong> usar la pendiente del punto donde estoy (la tangente) para avanzar todo el paso \(h\).</p>
+      <div class="eqn">\[ y_{n+1} = y_n + h\cdot y'_n \qquad\text{con}\qquad y'_n = f(x_n,\,y_n) \]</div>
+      <p style="color:var(--text-secondary);">Es el método más simple, y nos sirve de base: los otros tres lo <strong>mejoran</strong>. Su problema es que la pendiente cambia a lo largo del intervalo y Euler la ignora: sólo mira el principio. Por eso es de <strong>orden 1</strong> (si dividís \(h\) por 2, el error se divide por ~2). Es el «predictor» que usa Euler mejorado.</p>
+    </div>
+    <div><div id="fig-euler"></div></div>
+  </article>
+
+  <!-- Taylor -->
+  <article class="method-card m-taylor reveal" id="m-taylor">
+    <div>
+      <h3><span class="mbadge mb-taylor">Taylor de grado 2</span> <span class="badge">necesita derivadas · orden 2</span></h3>
+      <p class="idea"><strong>Idea:</strong> desarrollar \(y(x_{n+1})\) en serie de Taylor alrededor de \(x_n\) y quedarse hasta el término de \(h^2\). Es Euler <em>más un término de curvatura</em>.</p>
+      <div class="eqn">\[ y_{n+1} = y_n + h\cdot y'_n + \frac{h^2}{2!}\cdot y''_n \]
+        \[ y'_n = f(x_n, y_n) \qquad\quad y''_n = \frac{\partial f}{\partial x} + \frac{\partial f}{\partial y}\cdot y'_n \]</div>
+      <p style="color:var(--text-secondary);"><strong>¿De dónde sale \(y''\)?</strong> Se deriva \(y' = f(x, y(x))\) con la regla de la cadena, porque \(y\) también depende de \(x\): \(\;y'' = f_x + f_y\cdot y'\).</p>
+      <h4>Cómo se aplica</h4>
+      <ol>
+        <li>Con la \(f\) del enunciado, calculás <strong>una vez</strong> las derivadas parciales \(\partial f/\partial x\) y \(\partial f/\partial y\) y armás \(y''\). Ejemplo del apunte: \(f = 2xy \Rightarrow y'' = 2y + 4x^2y\).</li>
+        <li>Reemplazás todo en la fórmula: queda la <strong>ordenada genérica</strong>.</li>
+        <li>En cada iteración reemplazás \(x_n, y_n, h\) y obtenés \(y_{n+1}\).</li>
+      </ol>
+      <div class="needs"><span class="badge warn">necesita \(f_x\) y \(f_y\)</span><span class="badge">1 evaluación de \(f\) + 2 derivadas por paso</span></div>
+    </div>
+    <div><div id="fig-taylor"></div></div>
+  </article>
+
+  <!-- Euler mejorado -->
+  <article class="method-card m-heun reveal" id="m-heun">
+    <div>
+      <h3><span class="mbadge mb-heun">Euler mejorado</span> <span class="badge">predictor-corrector · orden 2</span></h3>
+      <p class="idea"><strong>Idea:</strong> Euler mira sólo la pendiente del <em>principio</em> del intervalo. Mejor: <strong>promediar la pendiente del principio con la del final</strong>.</p>
+      <div class="eqn">\[ y_{n+1} = y_n + \frac{h}{2!}\Big[\, f(x_n, y_n) + f\big(x_{n+1},\; y_n + h\cdot y'_n\big) \Big] \]</div>
+      <p style="color:var(--text-secondary);">Problema: no conocemos \(y_{n+1}\), así que tampoco la pendiente al final. Solución: <strong>estimarla</strong> con un paso de Euler (el <em>predictor</em>, \(\tilde y_{n+1} = y_n + h\,y'_n\)) y después promediar (el <em>corrector</em>). También se lo conoce como método de Heun o regla del trapecio.</p>
+      <h4>Cómo se aplica</h4>
+      <ol>
+        <li><strong>Pendiente al inicio:</strong> \(y'_n = f(x_n, y_n)\).</li>
+        <li><strong>Predictor:</strong> \(\tilde y_{n+1} = y_n + h\,y'_n\) (un Euler).</li>
+        <li><strong>Pendiente al final:</strong> \(f(x_{n+1}, \tilde y_{n+1})\).</li>
+        <li><strong>Corrector:</strong> avanzás con el <em>promedio</em> de las dos pendientes: \(y_{n+1} = y_n + \frac{h}{2}\,[\,y'_n + f(x_{n+1},\tilde y_{n+1})\,]\).</li>
+      </ol>
+      <div class="needs"><span class="badge ok">no necesita derivadas</span><span class="badge">2 evaluaciones de \(f\) por paso</span></div>
+    </div>
+    <div><div id="fig-heun"></div></div>
+  </article>
+
+  <!-- RK2 -->
+  <article class="method-card m-rk2 reveal" id="m-rk2">
+    <div>
+      <h3><span class="mbadge mb-rk2">Runge-Kutta de grado 2</span> <span class="badge">punto medio · orden 2</span></h3>
+      <p class="idea"><strong>Idea:</strong> usar la pendiente en el <strong>punto medio</strong> del intervalo, que representa mejor lo que pasa durante el paso que la pendiente del principio.</p>
+      <div class="eqn">\[ y_{n+1} = y_n + h\cdot f\!\left(x_n + \frac{h}{2},\; y_n + \frac{k_1}{2}\right) \qquad\text{con}\qquad k_1 = h\cdot f(x_n, y_n) \]</div>
+      <p style="color:var(--text-secondary);">\(k_1\) es lo que avanzaría Euler en un paso completo. Con la <strong>mitad</strong> de ese avance llegamos al punto medio; ahí medimos la pendiente y con <em>esa</em> pendiente avanzamos todo el paso desde \((x_n, y_n)\).</p>
+      <h4>Cómo se aplica</h4>
+      <ol>
+        <li><strong>\(k_1 = h\cdot f(x_n, y_n)\)</strong> (el paso de Euler).</li>
+        <li><strong>Punto medio:</strong> \(\big(x_n + \tfrac{h}{2},\; y_n + \tfrac{k_1}{2}\big)\).</li>
+        <li><strong>Pendiente allí:</strong> \(f\big(x_n + \tfrac{h}{2},\, y_n + \tfrac{k_1}{2}\big)\).</li>
+        <li><strong>Avanzás</strong> todo el paso con esa pendiente: \(y_{n+1} = y_n + h\cdot(\text{esa pendiente})\).</li>
+      </ol>
+      <div class="needs"><span class="badge ok">no necesita derivadas</span><span class="badge">2 evaluaciones de \(f\) por paso</span></div>
+      <div class="callout warn" style="margin-top:var(--space-4);"><span class="ttl">Ojo con los nombres</span>
+        <p>En otros libros «RK2» es el método de Heun (nuestro Euler mejorado). En la cátedra, <strong>RK2 es el de punto medio</strong>, tal como figura en el apunte.</p>
+      </div>
+    </div>
+    <div><div id="fig-rk2"></div></div>
+  </article>
+
+  <details class="more reveal">
+    <summary>Para ir más allá: Euler mejorado y RK2 son de la misma familia</summary>
+    <div class="inner">
+      <p>Hay una fórmula general para los métodos Runge-Kutta de dos etapas, con un parámetro \(\alpha\):</p>
+      <div class="eqn">\[ y_{n+1} = y_n + h\Big[\big(1 - \tfrac{1}{2\alpha}\big)\,s_1 + \tfrac{1}{2\alpha}\,s_2\Big],\qquad s_1 = f(x_n, y_n),\quad s_2 = f\big(x_n + \alpha h,\; y_n + \alpha h\, s_1\big) \]</div>
+      <p>Con \(\alpha = 1\) queda \(\tfrac12(s_1 + s_2)\): es el <strong>Euler mejorado</strong>. Con \(\alpha = \tfrac12\) queda \(s_2\): es el <strong>RK2 de punto medio</strong>. Son dos miembros de la misma familia, por eso comparten el orden. (Acá \(s_1\) y \(s_2\) son pendientes; en el apunte \(k_1 = h\cdot f\) ya viene multiplicada por \(h\).)</p>
+    </div>
+  </details>
+</section>
+
+<!-- ======================= 3. COMPARACIÓN ======================= -->
+<section class="block container" id="comparacion">
+  <div class="eyebrow reveal">3 · Comparación</div>
+  <h2 class="section-title reveal">En qué se parecen y en qué se diferencian</h2>
+  <p class="section-lede reveal">La clave: los tres tienen el <strong>mismo orden</strong>, pero llegan ahí por caminos distintos y con requisitos distintos.</p>
+
+  <div class="table-wrap reveal" style="margin-bottom:var(--space-8);">
+    <table class="data-table">
+      <thead><tr><th></th><th class="th-taylor">Taylor (grado 2)</th><th class="th-heun">Euler mejorado</th><th class="th-rk2">RK2 (punto medio)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Idea</strong></td><td class="wrap">Desarrollo en serie de Taylor hasta \(h^2\)</td><td class="wrap">Promedio de la pendiente al inicio y al final</td><td class="wrap">Pendiente en el punto medio del intervalo</td></tr>
+        <tr><td><strong>Fórmula</strong></td><td>\(y_n + h\,y'_n + \frac{h^2}{2!}y''_n\)</td><td>\(y_n + \frac{h}{2}\,[\,y'_n + f(x_{n+1},\, y_n + h\,y'_n)\,]\)</td><td>\(y_n + h\,f\big(x_n+\frac{h}{2},\, y_n+\frac{k_1}{2}\big)\)</td></tr>
+        <tr><td><strong>¿Necesita derivar \(f\)?</strong></td><td><span class="badge warn">Sí: \(f_x\) y \(f_y\)</span></td><td><span class="badge ok">No</span></td><td><span class="badge ok">No</span></td></tr>
+        <tr><td><strong>Evaluaciones por paso</strong></td><td>\(f\), \(f_x\), \(f_y\) (3)</td><td>\(f\) dos veces (2)</td><td>\(f\) dos veces (2)</td></tr>
+        <tr><td><strong>Error local (un paso)</strong></td><td>\(O(h^3)\)</td><td>\(O(h^3)\)</td><td>\(O(h^3)\)</td></tr>
+        <tr><td><strong>Error global (todo el dominio)</strong></td><td>\(O(h^2)\)</td><td>\(O(h^2)\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td><strong>Cuándo conviene</strong></td><td class="wrap">Si \(f\) es simple y fácil de derivar; permite armar una fórmula cerrada</td><td class="wrap">Uso general: fácil de recordar y de programar (predictor-corrector)</td><td class="wrap">Uso general; es la puerta de entrada a Runge-Kutta de orden 4</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="two-col">
+    <div class="prose reveal">
+      <h3>Lo que tienen en común: coinciden con Taylor hasta \(h^2\)</h3>
+      <p>La solución exacta cumple:</p>
+      <div class="eqn accent">\[ y(x_n + h) = y_n + h\,f + \frac{h^2}{2}\,\big(f_x + f\,f_y\big) + O(h^3) \]</div>
+      <p>Taylor usa ese polinomio <strong>derivando</strong> a mano. Euler mejorado y RK2 lo reproducen <strong>sin derivar</strong>: evalúan \(f\) en dos puntos bien elegidos y el desarrollo de esas dos evaluaciones da, hasta \(h^2\), exactamente lo mismo. Por eso los tres son de <strong>orden 2</strong>.</p>
+      <p>Se diferencian recién en el término de \(h^3\): ahí cada uno se equivoca de manera distinta.</p>
+
+      <h3>¿Qué significa «orden 2»?</h3>
+      <p>Si <strong>achicás el paso a la mitad</strong>, el error final se divide aproximadamente por \(2^2 = 4\). En Euler (orden 1) se divide sólo por 2. Se ve en el <a href="#laboratorio" style="text-decoration:underline;">Laboratorio</a>: la pendiente en el gráfico log-log es 2 para los tres y 1 para Euler.</p>
+      <p><strong>¿Por qué el error local es \(O(h^3)\) pero el global \(O(h^2)\)?</strong> En cada paso se comete un error \(\approx h^3\), y hay \(n = (x_f - x_0)/h\) pasos: se acumulan \(\approx \frac{1}{h}\cdot h^3 = h^2\).</p>
+    </div>
+    <div class="reveal">
+      <div class="callout tip"><span class="ttl">Dato que sorprende</span>
+        <p>Si \(f\) es <strong>lineal en \(x\) e \(y\)</strong> (por ejemplo \(y' = -y + x + 1\) o \(y' = 2x - 3y + 1\)), los tres métodos dan <strong>exactamente el mismo resultado</strong>.</p>
+        <p>Pasa porque las diferencias aparecen en el término de \(h^3\), que depende de las derivadas <em>segundas</em> de \(f\) — y en una función lineal son cero. Lo podés comprobar en la calculadora con, por ejemplo, \(y' = -y + x + 1\) o \(y' = 2x - 3y + 1\).</p>
+      </div>
+      <div class="callout"><span class="ttl">Entonces, ¿cuál es el mejor?</span>
+        <p>No hay un ganador fijo. Con el mismo orden, el error concreto depende de la ecuación. Lo que sí cambia es el <strong>costo de usarlos</strong>: Taylor exige derivar; Euler mejorado y RK2 sólo piden evaluar \(f\) dos veces.</p>
+      </div>
+    </div>
+  </div>
+
+  <details class="more reveal">
+    <summary>Para ir más allá: el error local de cada método</summary>
+    <div class="inner">
+      <p>Llamemos \(F = f_x + f\,f_y\) y \(D = f_{xx} + 2f\,f_{xy} + f^2 f_{yy}\). El primer término del error local (solución exacta menos método, en un paso) es:</p>
+      <div class="eqn">\[ \text{Taylor 2: } \frac{h^3}{6}\,\big(D + f_y F\big) \qquad \text{Euler mejorado: } h^3\Big(-\frac{D}{12} + \frac{f_y F}{6}\Big) \qquad \text{RK2: } h^3\Big(\frac{D}{24} + \frac{f_y F}{6}\Big) \]</div>
+      <p>Se ve que: (1) los tres tienen un \(h^3\) — son de orden 2; (2) si \(f\) es lineal, \(D = 0\) y los tres tienen el <strong>mismo</strong> error; (3) si no, el que «gana» depende de los signos y tamaños de \(D\) y \(f_y F\) en la ecuación particular. (Lo verificamos numéricamente con el motor de esta página.)</p>
+    </div>
+  </details>
+</section>
+
+<!-- ======================= 4. CALCULADORA ======================= -->
+<section class="block container" id="calculadora">
+  <div class="eyebrow reveal">4 · Calculadora</div>
+  <h2 class="section-title reveal">Resolvé cualquier ejercicio</h2>
+  <p class="section-lede reveal">Escribí <strong>cualquier</strong> ecuación diferencial con su condición inicial, elegí el método (o varios para compararlos) y la calculadora hace todas las iteraciones. Te muestra <strong>cada paso con los números reemplazados</strong> (como en el apunte) y compara los métodos contra la solución exacta.</p>
+
+  <div class="calc-card reveal">
+    <details class="adv" style="margin:0 0 var(--space-5); padding-bottom:var(--space-4); border-bottom:1px dashed var(--border-default);">
+      <summary><strong>¿Cómo escribo mi ecuación?</strong> &nbsp;<span class="muted">(ejemplos de cómo traducir el enunciado)</span></summary>
+      <div class="table-wrap" style="margin-top:var(--space-3);">
+        <table class="data-table compact">
+          <thead><tr><th>En el enunciado</th><th>Lo que escribís</th></tr></thead>
+          <tbody>
+            <tr><td>\(y' = x^2\,y\)</td><td class="mono">x^2*y</td></tr>
+            <tr><td>\(y' = \tfrac{1}{4}(1 + y^2)\)</td><td class="mono">(1+y^2)/4</td></tr>
+            <tr><td>\(y' = x\,y^2 - \tfrac{y}{x}\)</td><td class="mono">x*y^2 - y/x</td></tr>
+            <tr><td>\(y' = \operatorname{sen}(t) + e^{-t}\) &nbsp;(variable \(t\))</td><td class="mono">sin(t) + exp(-t)</td></tr>
+            <tr><td>\(y' = -t\,y + 4\,\tfrac{t}{y}\)</td><td class="mono">-t*y + 4*t/y</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="hint" style="margin:var(--space-3) 0 0;">Los decimales van con punto o coma. Si usás <span class="mono">t</span> en lugar de <span class="mono">x</span>, la calculadora lo detecta sola. Abajo de la ecuación ves cómo la interpretó, para que verifiques que es la correcta.</p>
+    </details>
+
+    <form id="calcForm" autocomplete="off" novalidate>
+      <div class="field">
+        <label for="fInput">Ecuación diferencial</label>
+        <div class="input-prefix"><span class="mono" id="fPrefix">y′ =</span><input id="fInput" class="mono" type="text" spellcheck="false" autocapitalize="off" placeholder="escribí f(x, y), por ejemplo: x*y + 1" /></div>
+        <div class="hint">Usá <b>*</b> para multiplicar y <b>^</b> para potencias. Funciona <span class="mono">sin(t)</span>, <span class="mono">sen(t)</span>, <span class="mono">exp(-t)</span>, <span class="mono">e^(-t)</span>, <span class="mono">sqrt(x)</span>, <span class="mono">ln(y)</span>… Escribir <span class="mono">2xy</span> también se entiende como 2·x·y.</div>
+        <div class="parsed" id="fParsed" aria-live="polite"></div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field"><label for="vSelect">Variable independiente</label>
+          <select id="vSelect"><option value="x">x</option><option value="t">t</option></select></div>
+        <div class="field"><label for="x0Input" id="x0Label">x₀</label><input id="x0Input" class="mono" type="text" inputmode="decimal" placeholder="ej. 0" /></div>
+        <div class="field"><label for="y0Input">y₀  <span class="muted">( y(x₀) )</span></label><input id="y0Input" class="mono" type="text" inputmode="decimal" placeholder="ej. 1" /></div>
+        <div class="field"><label for="hInput">Paso h</label><input id="hInput" class="mono" type="text" inputmode="decimal" placeholder="ej. 0.1" /></div>
+        <div class="field"><label for="xfInput" id="xfLabel">Hallar y( x ) en x =</label><input id="xfInput" class="mono" type="text" inputmode="decimal" placeholder="ej. 1" /></div>
+      </div>
+      <div class="derived" id="derivedInfo" aria-live="polite"></div>
+
+      <fieldset class="methods-box">
+        <legend>Elegí el método (uno o varios para compararlos)</legend>
+        <div class="checks">
+          <label class="check"><input type="checkbox" name="method" value="taylor" /><span class="mbadge mb-taylor">Taylor (grado 2)</span></label>
+          <label class="check"><input type="checkbox" name="method" value="heun" /><span class="mbadge mb-heun">Euler mejorado</span></label>
+          <label class="check"><input type="checkbox" name="method" value="rk2" /><span class="mbadge mb-rk2">RK2 (punto medio)</span></label>
+          <label class="check"><input type="checkbox" name="method" value="euler" /><span class="mbadge mb-euler">Euler (de referencia)</span></label>
+        </div>
+        <div class="actions" style="margin-top:var(--space-3);">
+          <button class="btn small" type="button" id="btnPickThree">Elegir los tres</button>
+          <button class="btn small" type="button" id="btnPickNone">Quitar todos</button>
+        </div>
+      </fieldset>
+
+      <details class="adv">
+        <summary>Opciones avanzadas</summary>
+        <div class="adv-grid">
+          <div class="field"><label for="digitsSelect">Redondeo en cada iteración</label>
+            <select id="digitsSelect">
+              <option value="full">Sin redondear (precisión completa)</option>
+              <option value="4">4 decimales (como a mano)</option>
+              <option value="5">5 decimales</option>
+              <option value="6">6 decimales</option>
+            </select>
+            <div class="hint">Resolviendo a mano solemos redondear a 4 decimales en cada paso: con esta opción la calculadora hace lo mismo.</div></div>
+          <div class="field"><label for="exactInput">Solución exacta (opcional)</label>
+            <input id="exactInput" class="mono" type="text" spellcheck="false" placeholder="por ejemplo:  exp(x^2-1)" />
+            <div class="hint">Si la conocés, se usa para medir el error real. Si no, la calculadora usa una solución numérica de referencia muy precisa.</div></div>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="btn primary" type="submit" id="btnCalc">Calcular</button>
+        <button class="btn" type="button" id="btnClear">Limpiar todo</button>
+        <span class="kbd-hint">También funciona con Enter.</span>
+      </div>
+    </form>
+    <div class="alert" id="calcError" role="alert" hidden></div>
+  </div>
+
+  <div id="calcResults" hidden>
+    <div class="res-head"><h3 id="resTitle">Resultados</h3><div id="resRef" class="muted" style="font-size:0.85rem;"></div></div>
+    <div class="tabbar" role="tablist" id="resTabs">
+      <button class="tab-btn active" role="tab" data-tab="resumen">Resumen</button>
+      <button class="tab-btn" role="tab" data-tab="tablas">Tablas</button>
+      <button class="tab-btn" role="tab" data-tab="pasos">Paso a paso</button>
+      <button class="tab-btn" role="tab" data-tab="graficos">Gráficos</button>
+      <button class="tab-btn" role="tab" data-tab="chequeo">Chequear mi resolución</button>
+    </div>
+    <div class="tab-panel active" id="tab-resumen"></div>
+    <div class="tab-panel" id="tab-tablas"></div>
+    <div class="tab-panel" id="tab-pasos"></div>
+    <div class="tab-panel" id="tab-graficos">
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Solución aproximada de cada método</div><div class="chart-sub" id="chartSolSub">y en función de x</div><div class="chart-box"><canvas id="chartSol"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Error en cada iteración</div><div class="chart-sub">|y(xₙ) − yₙ| contra la referencia — escala logarítmica</div><div class="chart-box"><canvas id="chartErr"></canvas></div></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-chequeo">
+      <div class="check-grid">
+        <div>
+          <p style="color:var(--text-secondary); margin-top:0;">Resolviste el ejercicio a mano y querés saber si está bien. Elegí el método, pegá tus valores <span class="mono">y₁, y₂, y₃…</span> (separados por espacio, punto y coma o renglón) y la calculadora te dice <strong>en qué iteración</strong> empezaste a diferir.</p>
+          <div class="field"><label for="chkMethod">Método que usaste</label><select id="chkMethod"></select></div>
+          <div class="field" style="margin-top:var(--space-3);"><label for="chkValues">Tus valores (desde y₁)</label><textarea id="chkValues" class="mono" rows="4" placeholder="1.23  1.5426  1.9727"></textarea></div>
+          <div class="actions"><button class="btn primary" type="button" id="btnCheck">Comparar con la calculadora</button></div>
+          <div class="hint" style="margin-top:var(--space-2);">Se acepta una diferencia de hasta 0.0002 por el redondeo a 4 decimales.</div>
+        </div>
+        <div id="chkOut"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 5. LABORATORIO ======================= -->
+<section class="block container" id="laboratorio">
+  <div class="eyebrow reveal">5 · Laboratorio</div>
+  <h2 class="section-title reveal">Dos experimentos para entender las diferencias</h2>
+  <p class="section-lede reveal">Primero miramos <strong>un solo paso</strong> con la geometría a la vista. Después achicamos \(h\) una y otra vez para <strong>medir el orden</strong> de cada método.</p>
+
+  <div class="lab-card reveal">
+    <h3>Experimento 1 · Un paso, cuatro caminos</h3>
+    <p class="sub">Desde el mismo punto \((x_0, y_0)\), cada método elige una pendiente distinta para avanzar \(h\). Movés el paso y ves cómo se separan de la solución exacta (la curva que termina en el círculo vacío, marcada «exacta»). Las rayitas de fondo son el <em>campo de pendientes</em>: la pendiente \(f(x,y)\) en cada punto del plano.</p>
+    <div class="lab-controls">
+      <div class="field"><label for="stepSource">Problema</label>
+        <select id="stepSource">
+          <option value="didactic">Ejemplo didáctico: y′ = y², y(0) = 1</option>
+          <option value="calc">El que calculaste en la calculadora (calculá uno primero)</option>
+        </select></div>
+      <div class="field"><label for="stepH">Tamaño del paso: <span class="range-val" id="stepHVal">h = 0.5</span></label>
+        <input type="range" id="stepH" min="0.1" max="0.8" step="0.05" value="0.5" /></div>
+      <div class="field" style="flex:0 0 auto; min-width:0;"><label class="check"><input type="checkbox" id="stepField" checked /> Campo de pendientes</label></div>
+    </div>
+    <div id="stepFigure"></div>
+    <div class="table-wrap" style="margin-top:var(--space-4);"><table class="data-table compact" id="stepTable"></table></div>
+  </div>
+
+  <div class="lab-card reveal">
+    <h3>Experimento 2 · ¿Qué pasa si achico h?</h3>
+    <p class="sub">Con el ejercicio que calcules arriba (o con un ejemplo didáctico, si todavía no calculaste ninguno) se repite el cálculo con \(h,\ h/2,\ h/4,\dots\) y se mide el error en el punto final. En un gráfico <strong>log-log</strong>, un método de orden \(p\) queda alineado con una recta de pendiente \(p\). Orden observado \(= \log_2\big(e_{h}/e_{h/2}\big)\).</p>
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-title">Error final contra el paso h</div><div class="chart-sub" id="convSub">escala log-log</div><div class="chart-box tall"><canvas id="chartConv"></canvas></div></div>
+      <div>
+        <div class="table-wrap"><table class="data-table compact" id="convTable"></table></div>
+        <div class="callout" style="margin-top:var(--space-4);" id="convNote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CONCLUSIÓN ======================= -->
+<section class="block container" id="conclusion">
+  <div class="eyebrow reveal">6 · Conclusión</div>
+  <h2 class="section-title reveal">Mismo orden, tres caminos</h2>
+  <div class="two-col">
+    <div class="prose reveal">
+      <p>Taylor de grado 2, Euler mejorado y RK2 resuelven el mismo problema con el <strong>mismo orden de precisión</strong>: los tres coinciden con la serie de Taylor hasta \(h^2\), tienen error local \(O(h^3)\) y error global \(O(h^2)\). Al dividir \(h\) por 2, el error se divide por ~4 (Euler simple, de orden 1, sólo por ~2).</p>
+      <p>Lo que los distingue es <strong>cómo consiguen la pendiente</strong> y <strong>qué piden a cambio</strong>:</p>
+      <ul>
+        <li><strong>Taylor</strong> deriva \(f\) (parciales) para armar el término de curvatura: da una fórmula cerrada, pero sólo es práctico si \(f\) es simple.</li>
+        <li><strong>Euler mejorado</strong> promedia la pendiente del inicio con la del final estimado por un paso de Euler.</li>
+        <li><strong>RK2</strong> usa la pendiente del punto medio.</li>
+      </ul>
+      <p>Euler mejorado y RK2 no necesitan derivadas, sólo dos evaluaciones de \(f\) por paso, y por eso son los más cómodos de usar y programar. <strong>No hay un ganador universal</strong>: el error concreto depende de la ecuación, y cuando \(f\) es lineal los tres dan exactamente lo mismo.</p>
+    </div>
+    <div class="reveal">
+      <div class="card"><h3>Lo que podés comprobar en la calculadora</h3><ul style="margin:0; padding-left:1.2em; color:var(--text-secondary); font-size:0.93rem; line-height:1.65;">
+          <li>Al dividir h por 2, el error de los tres métodos baja unas <b>4 veces</b> (Euler simple, unas 2): está en el Laboratorio.</li>
+          <li>Si f es lineal en x e y, los tres dan <b>exactamente el mismo resultado</b>.</li>
+          <li>Si no, el que queda más cerca de la solución exacta <b>depende de la ecuación</b>: no hay un ganador fijo.</li>
+        </ul></div>
+      <div class="card"><h3>Para quedarse con una frase</h3><p style="font-size:1rem; color:var(--text-primary);">«Tres métodos de orden 2: Taylor <em>deriva</em>, Euler mejorado <em>promedia</em> y RK2 <em>mide en el medio</em>.»</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="container">
+  <div class="foot-grid">
+    <div class="foot-col"><div class="label">Trabajo</div><ul><li>Taylor · Euler mejorado · RK2</li><li>Ecuaciones diferenciales ordinarias (PVI)</li></ul></div>
+    <div class="foot-col"><div class="label">Cátedra</div><ul><li>Análisis Numérico</li><li>U.T.N. Facultad Regional La Plata</li></ul></div>
+    <div class="foot-col"><div class="label">Grupo 6 — Integrantes</div><ul><li>Bassilion, Brisa</li><li>Cáceres, Juan</li><li>Huari, Cesar</li><li>Mazzei, Martina</li></ul></div>
+  </div>
+  <div class="foot-bottom"><span>Fórmulas según el apunte de la cátedra (Ing. Diego Federico Amiconi)</span><span>Funciona sin conexión a internet</span></div>
+</footer>
+
+<script src="vendor/math.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/auto-render.min.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
